@@ -143,63 +143,11 @@ def multi_part_upload(bucket_name, item_name, file_path):
         print("Unable to complete multi-part upload: {0}".format(e))
 
 def dump_video(model_type):
-	'''
-	key_len = 5
-	def base_str():
-		return (string.ascii_letters+string.digits)
-	
-	def key_gen():
-		keylist = [random.choice(base_str()) for i in range(key_len)]
-		return ("".join(keylist))
-	
-	user_key = str(key_gen())
-	global GLOBAL_KEY
-	GLOBAL_KEY = str(user_key)
-	with open('key.txt','w+') as k:
-		k.write(str(user_key))
-	k.close()
-	st.write("Key:",user_key)
-	'''
 
-	
 	ctx = get_report_ctx()
 	user_key = str(ctx.session_id)[-5:]
 	bucket_name = 'visionmodel'
-	'''
-	instance_state_list = check_AllclusterNode_state()
-	name_state_dict = {}
-	print(instance_state_list)
-	for i,statefile in enumerate(instance_state_list):
 
-		os.system("wget "+str(statefile)+" -O state_local"+str(i)+".txt")
-		st.write(os.system("ls"))
-		state_line = open("state_local"+str(i)+".txt",'r').readline()
-		cluster_state = str(str(state_line).rstrip().rpartition(' ')[-1])
-		print(cluster_state)
-		name = "state_local"+str(i)+".txt"
-		name_state_dict.update({name: cluster_state})
-	'''
-	'''
-	try:
-		#free = list(name_state_dict.keys())[list(name_state_dict.values()).index("available")]
-		
-		remote_file_name_path = "Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(free[-5])+str(user_key)+str(model_type)+".mp4"
-		backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
-		print("remote_file_name_path",remote_file_name_path)
-
-		#blob_client = cg_bucket.get_blob_client(remote_file_name_path)
-		#blob_client_backup = cg_bucket.get_blob_client(backup_path)
-
-		with open('test.mp4', 'rb') as data:
-			#blob_client.upload_blob(data, overwrite=True)
-			multi_part_upload(bucket_name,remote_file_name_path, data )
-
-		with open('test.mp4', 'rb') as data:
-			#blob_client_backup.upload_blob(data, overwrite=True)
-			multi_part_upload(bucket_name,backup_path, data )
-
-	except ValueError as e:
-	'''
 	# Put video on instance one as queue
 	remote_file_name_path = ("Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(1)+str(user_key)+str(model_type)+".mp4")
 	backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
