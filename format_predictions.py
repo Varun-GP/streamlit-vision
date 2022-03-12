@@ -30,6 +30,25 @@ import mapping
 
 key_global = ""
 
+import ibm_boto3
+from ibm_botocore.client import Config, ClientError
+
+# Constants for IBM COS values
+COS_ENDPOINT = "https://s3.che01.cloud-object-storage.appdomain.cloud" # Current list avaiable at https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints
+COS_API_KEY_ID = "87hyUyV47X0bvi_cXGqA-3cg3wYRz7G9XZzj26Dp3CSR" # eg "W00YixxxxxxxxxxMB-odB-2ySfTrFBIQQWanc--P3byk"
+COS_INSTANCE_CRN = "crn:v1:bluemix:public:cloud-object-storage:global:a/ed5af9d7ed5a423cbd1d6f677410bc4d:2aff4f76-99d5-4b56-8c87-75d9f5b13082::" # eg "crn:v1:bluemix:public:cloud-object-storage:global:a/3bf0d9003xxxxxxxxxx1c3e97696b71c:d6f04d83-6c4f-4a62-a165-696756d63903::"
+
+# Create resource
+cos = ibm_boto3.resource("s3",
+    ibm_api_key_id=COS_API_KEY_ID,
+    ibm_service_instance_id=COS_INSTANCE_CRN,
+    config=Config(signature_version="oauth"),
+    endpoint_url=COS_ENDPOINT
+)
+
+
+bucket_name = 'visionmodel'
+
 def visualize_prob(pred_dict):
 	for i in range(len(pred_dict)):
 
@@ -69,7 +88,10 @@ def visualize_prob(pred_dict):
 def check_prediction_update(key_global):
 	ctx = get_report_ctx()
 	key_global = str(ctx.session_id)[-5:]
-	pred_object = cg_bucket.list_blobs(name_starts_with="Model_July_24Classes")
+	target_bucket = 'visionmodel'
+
+	# pred_object = cg_bucket.list_blobs(name_starts_with="Model_July_24Classes")
+	pred_object = get_bucket_contents(str(target_bucket))
 	line = open('time.txt','r').readline()
 	date, time  = line.rsplit(' ')[0].strip(), line.rsplit(' ')[1].strip()
 	yyyy,m,d = date.rsplit('-')[0].strip(), date.rsplit('-')[1].strip(), date.rsplit('-')[2].strip()
@@ -78,9 +100,10 @@ def check_prediction_update(key_global):
 	is_modified = False
 	url = ""
 	for blob in pred_object:
-		if blob.name.endswith(".log") and "Predictions" in str(blob.name) and str(key_global) in str(blob.name) and blob.last_modified > timestamp:
+		if blob.name.endswith(".log") and "Predictions" in str(blob.key) and str(key_global) in str(blob.key) and blob.last_modified > timestamp:
 			#print(blob.last_modified)
-			url = "https://cogniableold.blob.core.windows.net/awsdata/" + str(blob.name)
+			# url = "https://cogniableold.blob.core.windows.net/awsdata/" + str(blob.key)
+			url = "https://visionmodel.s3.che01.cloud-object-storage.appdomain.cloud/" + str(blob.key)
 			with open('time.txt','w+') as l:
 				l.write(str(blob.last_modified))
 			l.close()
