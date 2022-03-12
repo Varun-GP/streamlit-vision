@@ -169,6 +169,7 @@ def dump_video(model_type):
 	for i,statefile in enumerate(instance_state_list):
 
 		os.system("wget "+str(statefile)+" -O state_local"+str(i)+".txt")
+		st.write(os.system("ls"))
 		state_line = open("state_local"+str(i)+".txt",'r').readline()
 		cluster_state = str(str(state_line).rstrip().rpartition(' ')[-1])
 		print(cluster_state)
