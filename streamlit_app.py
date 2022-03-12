@@ -160,12 +160,14 @@ def dump_video(model_type):
 	k.close()
 	st.write("Key:",user_key)
 	'''
+
+	'''
 	ctx = get_report_ctx()
 	user_key = str(ctx.session_id)[-5:]
 	bucket_name = 'visionmodel'
 	instance_state_list = check_AllclusterNode_state()
 	name_state_dict = {}
-	st.write(instance_state_list)
+	print(instance_state_list)
 	for i,statefile in enumerate(instance_state_list):
 
 		os.system("wget "+str(statefile)+" -O state_local"+str(i)+".txt")
@@ -175,6 +177,7 @@ def dump_video(model_type):
 		print(cluster_state)
 		name = "state_local"+str(i)+".txt"
 		name_state_dict.update({name: cluster_state})
+	'''
 
 	try:
 		free = list(name_state_dict.keys())[list(name_state_dict.values()).index("available")]
