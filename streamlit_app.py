@@ -165,7 +165,7 @@ def dump_video(model_type):
 	bucket_name = 'visionmodel'
 	instance_state_list = check_AllclusterNode_state()
 	name_state_dict = {}
-	print(instance_state_list)
+	st.write(instance_state_list)
 	for i,statefile in enumerate(instance_state_list):
 
 		os.system("wget "+str(statefile)+" -O state_local"+str(i)+".txt")
