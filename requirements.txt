@@ -19,3 +19,4 @@ datetime
 schedule
 plotly
 kaleido
+ibm-cos-sdk
