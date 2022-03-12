@@ -161,10 +161,11 @@ def dump_video(model_type):
 	st.write("Key:",user_key)
 	'''
 
-	'''
+	
 	ctx = get_report_ctx()
 	user_key = str(ctx.session_id)[-5:]
 	bucket_name = 'visionmodel'
+	'''
 	instance_state_list = check_AllclusterNode_state()
 	name_state_dict = {}
 	print(instance_state_list)
