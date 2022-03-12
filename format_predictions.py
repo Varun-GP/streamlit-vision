@@ -114,7 +114,7 @@ def check_prediction_update(key_global):
 	is_modified = False
 	url = ""
 	for blob in pred_object:
-		if blob.name.endswith(".log") and "Predictions" in str(blob.key) and str(key_global) in str(blob.key) and blob.last_modified > timestamp:
+		if blob.key.endswith(".log") and "Predictions" in str(blob.key) and str(key_global) in str(blob.key) and blob.last_modified > timestamp:
 			#print(blob.last_modified)
 			# url = "https://cogniableold.blob.core.windows.net/awsdata/" + str(blob.key)
 			url = "https://visionmodel.s3.che01.cloud-object-storage.appdomain.cloud/" + str(blob.key)
