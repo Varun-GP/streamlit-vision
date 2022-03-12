@@ -178,9 +178,10 @@ def dump_video(model_type):
 		name = "state_local"+str(i)+".txt"
 		name_state_dict.update({name: cluster_state})
 	'''
-
+	'''
 	try:
-		free = list(name_state_dict.keys())[list(name_state_dict.values()).index("available")]
+		#free = list(name_state_dict.keys())[list(name_state_dict.values()).index("available")]
+		
 		remote_file_name_path = "Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(free[-5])+str(user_key)+str(model_type)+".mp4"
 		backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
 		print("remote_file_name_path",remote_file_name_path)
@@ -197,22 +198,22 @@ def dump_video(model_type):
 			multi_part_upload(bucket_name,backup_path, data )
 
 	except ValueError as e:
+	'''
+	# Put video on instance one as queue
+	remote_file_name_path = ("Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(1)+str(user_key)+str(model_type)+".mp4")
+	backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
+	print("remote_file_name_path",remote_file_name_path)
 
-		# Put video on instance one as queue
-		remote_file_name_path = ("Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(1)+str(user_key)+str(model_type)+".mp4")
-		backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
-		print("remote_file_name_path",remote_file_name_path)
+	#blob_client = cg_bucket.get_blob_client(remote_file_name_path)
+	#blob_client_backup = cg_bucket.get_blob_client(backup_path)
 
-		#blob_client = cg_bucket.get_blob_client(remote_file_name_path)
-		#blob_client_backup = cg_bucket.get_blob_client(backup_path)
+	with open('test.mp4', 'rb') as data:
+		#blob_client.upload_blob(data, overwrite=True)
+		multi_part_upload(bucket_name,remote_file_name_path, data )
 
-		with open('test.mp4', 'rb') as data:
-			#blob_client.upload_blob(data, overwrite=True)
-			multi_part_upload(bucket_name,remote_file_name_path, data )
-
-		with open('test.mp4', 'rb') as data:
-			#blob_client_backup.upload_blob(data, overwrite=True)
-			multi_part_upload(bucket_name,backup_path, data )
+	with open('test.mp4', 'rb') as data:
+		#blob_client_backup.upload_blob(data, overwrite=True)
+		multi_part_upload(bucket_name,backup_path, data )
 		
 	return user_key
 		
