@@ -32,6 +32,24 @@ cg_bucket = ContainerClient.from_connection_string(
 from streamlit.report_thread import get_report_ctx
 #import youtube_dl
 
+import ibm_boto3
+from ibm_botocore.client import Config, ClientError
+
+# Constants for IBM COS values
+COS_ENDPOINT = "https://s3.che01.cloud-object-storage.appdomain.cloud" # Current list avaiable at https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints
+COS_API_KEY_ID = "87hyUyV47X0bvi_cXGqA-3cg3wYRz7G9XZzj26Dp3CSR" # eg "W00YixxxxxxxxxxMB-odB-2ySfTrFBIQQWanc--P3byk"
+COS_INSTANCE_CRN = "crn:v1:bluemix:public:cloud-object-storage:global:a/ed5af9d7ed5a423cbd1d6f677410bc4d:2aff4f76-99d5-4b56-8c87-75d9f5b13082::" # eg "crn:v1:bluemix:public:cloud-object-storage:global:a/3bf0d9003xxxxxxxxxx1c3e97696b71c:d6f04d83-6c4f-4a62-a165-696756d63903::"
+
+# Create resource
+cos = ibm_boto3.resource("s3",
+    ibm_api_key_id=COS_API_KEY_ID,
+    ibm_service_instance_id=COS_INSTANCE_CRN,
+    config=Config(signature_version="oauth"),
+    endpoint_url=COS_ENDPOINT
+)
+
+
+bucket_name = 'visionmodel'
 
 def download_video(user_input):
 	# test user_input = "https://www.youtube.com/watch?v=yMgx2lVjf5I"
@@ -62,20 +80,67 @@ def download_video(user_input):
 	
 	#return path_main
 
-def check_AllclusterNode_state():
-	state_object = cg_bucket.list_blobs(name_starts_with="Model_July_24Classes")
 
+def get_bucket_contents(bucket_name):
+    target_files = []
+    print("Retrieving bucket contents from: {0}".format(bucket_name))
+    try:
+        files = cos.Bucket(bucket_name).objects.all()
+        for file in files:
+            print("Item: {0} ({1} bytes).".format(file.key, file.size))
+            target_files.append(file)
+    except ClientError as be:
+        print("CLIENT ERROR: {0}\n".format(be))
+    except Exception as e:
+        print("Unable to retrieve bucket contents: {0}".format(e))
+
+    return target_files
+
+def check_AllclusterNode_state():
+	#state_object = cg_bucket.list_blobs(name_starts_with="Model_July_24Classes")
+	target_bucket = 'visionmodel'
+
+	state_object = get_bucket_contents(str(target_bucket))
 	is_modified = False
 	url = ""
 	states = []
 	for blob in state_object:
-		if blob.name.endswith(".txt") and "States" in str(blob.name):
+		if blob.key.endswith(".txt") and "States" in str(blob.key):
 			#print(blob.last_modified)
 			#print(blob.name)
-			url = "https://cogniableold.blob.core.windows.net/awsdata/" + str(blob.name)
+			url = "https://cogniableold.blob.core.windows.net/awsdata/" + str(blob.key)
 			states.append(url)
 	
 	return states
+
+def multi_part_upload(bucket_name, item_name, file_path):
+    try:
+        print("Starting file transfer for {0} to bucket: {1}\n".format(item_name, bucket_name))
+        # set 5 MB chunks
+        part_size = 1024 * 1024 * 5
+
+        # set threadhold to 15 MB
+        file_threshold = 1024 * 1024 * 15
+
+        # set the transfer threshold and chunk size
+        transfer_config = ibm_boto3.s3.transfer.TransferConfig(
+            multipart_threshold=file_threshold,
+            multipart_chunksize=part_size
+        )
+
+        # the upload_fileobj method will automatically execute a multi-part upload
+        # in 5 MB chunks for all files over 15 MB
+        with open(file_path, "rb") as file_data:
+            cos.Object(bucket_name, item_name).upload_fileobj(
+                Fileobj=file_data,
+                Config=transfer_config
+            )
+
+        print("Transfer for {0} Complete!\n".format(item_name))
+    except ClientError as be:
+        print("CLIENT ERROR: {0}\n".format(be))
+    except Exception as e:
+        print("Unable to complete multi-part upload: {0}".format(e))
 
 def dump_video(model_type):
 	'''
@@ -97,7 +162,7 @@ def dump_video(model_type):
 	'''
 	ctx = get_report_ctx()
 	user_key = str(ctx.session_id)[-5:]
-
+	bucket_name = 'visionmodel'
 	instance_state_list = check_AllclusterNode_state()
 	name_state_dict = {}
 	for i,statefile in enumerate(instance_state_list):
@@ -111,34 +176,38 @@ def dump_video(model_type):
 
 	try:
 		free = list(name_state_dict.keys())[list(name_state_dict.values()).index("available")]
-		remote_file_name_path = ("Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(free[-5])+str(user_key)+str(model_type)+".mp4")
-		backup_path = ("Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4")
+		remote_file_name_path = "Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(free[-5])+str(user_key)+str(model_type)+".mp4"
+		backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
 		print("remote_file_name_path",remote_file_name_path)
 
-		blob_client = cg_bucket.get_blob_client(remote_file_name_path)
-		blob_client_backup = cg_bucket.get_blob_client(backup_path)
+		#blob_client = cg_bucket.get_blob_client(remote_file_name_path)
+		#blob_client_backup = cg_bucket.get_blob_client(backup_path)
 
 		with open('test.mp4', 'rb') as data:
-			blob_client.upload_blob(data, overwrite=True)
+			#blob_client.upload_blob(data, overwrite=True)
+			multi_part_upload(bucket_name,remote_file_name_path, data )
 
 		with open('test.mp4', 'rb') as data:
-			blob_client_backup.upload_blob(data, overwrite=True)
+			#blob_client_backup.upload_blob(data, overwrite=True)
+			multi_part_upload(bucket_name,backup_path, data )
 
 	except ValueError as e:
 
 		# Put video on instance one as queue
 		remote_file_name_path = ("Model_July_24Classes/ONLINE_TEST_VIDEOS/test_"+str(1)+str(user_key)+str(model_type)+".mp4")
-		backup_path = ("Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4")
+		backup_path = "Model_July_24Classes/Backup/test_"+str(user_key)+str(model_type)+".mp4"
 		print("remote_file_name_path",remote_file_name_path)
 
-		blob_client = cg_bucket.get_blob_client(remote_file_name_path)
-		blob_client_backup = cg_bucket.get_blob_client(backup_path)
+		#blob_client = cg_bucket.get_blob_client(remote_file_name_path)
+		#blob_client_backup = cg_bucket.get_blob_client(backup_path)
 
 		with open('test.mp4', 'rb') as data:
-			blob_client.upload_blob(data, overwrite=True)
+			#blob_client.upload_blob(data, overwrite=True)
+			multi_part_upload(bucket_name,remote_file_name_path, data )
 
 		with open('test.mp4', 'rb') as data:
-			blob_client_backup.upload_blob(data, overwrite=True)
+			#blob_client_backup.upload_blob(data, overwrite=True)
+			multi_part_upload(bucket_name,backup_path, data )
 		
 	return user_key
 		
