@@ -84,6 +84,20 @@ def visualize_prob(pred_dict):
 		fig.write_image("plot_"+str(i)+".png")
 
 
+def get_bucket_contents(bucket_name):
+    target_files = []
+    print("Retrieving bucket contents from: {0}".format(bucket_name))
+    try:
+        files = cos.Bucket(bucket_name).objects.all()
+        for file in files:
+            print("Item: {0} ({1} bytes).".format(file.key, file.size))
+            target_files.append(file)
+    except ClientError as be:
+        print("CLIENT ERROR: {0}\n".format(be))
+    except Exception as e:
+        print("Unable to retrieve bucket contents: {0}".format(e))
+
+    return target_files
 
 def check_prediction_update(key_global):
 	ctx = get_report_ctx()
