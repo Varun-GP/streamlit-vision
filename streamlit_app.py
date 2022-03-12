@@ -107,7 +107,7 @@ def check_AllclusterNode_state():
 	for blob in state_object:
 		if blob.key.endswith(".txt") and "States" in str(blob.key):
 			#print(blob.last_modified)
-			#print(blob.name)
+			#print(blob.key)
 			url = "https://visionmodel.s3.che01.cloud-object-storage.appdomain.cloud/" + str(blob.key)
 			states.append(url)
 	
@@ -208,13 +208,13 @@ def dump_video(model_type):
 	#blob_client = cg_bucket.get_blob_client(remote_file_name_path)
 	#blob_client_backup = cg_bucket.get_blob_client(backup_path)
 
-	with open('test.mp4', 'rb') as data:
+	#with open('test.mp4', 'rb') as data:
 		#blob_client.upload_blob(data, overwrite=True)
-		multi_part_upload(bucket_name,remote_file_name_path, data )
+	multi_part_upload(bucket_name,remote_file_name_path, 'test.mp4' )
 
-	with open('test.mp4', 'rb') as data:
+	#with open('test.mp4', 'rb') as data:
 		#blob_client_backup.upload_blob(data, overwrite=True)
-		multi_part_upload(bucket_name,backup_path, data )
+	multi_part_upload(bucket_name,backup_path, 'test.mp4' )
 		
 	return user_key
 		
