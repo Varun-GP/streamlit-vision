@@ -81,7 +81,8 @@ def visualize_prob(pred_dict):
 
 		#fig.show()
 
-		fig.write_image("plot_"+str(i)+".png",  format="png", engine="kaleido")
+		#fig.write_image("plot_"+str(i)+".png",  format="png", engine="kaleido")
+		st.plotly_chart(fig)
 
 
 def get_bucket_contents(bucket_name):
@@ -394,7 +395,7 @@ def display_pred():
 	st.markdown(class_pred, unsafe_allow_html=True)
 	#classes = lines
 	#classes = dict(tuple(classes))
-	#visualize_prob(probs)
+	visualize_prob(probs)
 	#table = pd.DataFrame({"Classes": classes.values(), "Confidence": classes.keys(),"Time Interval ":time_stamps})
 	table = pd.DataFrame({"Classes": preds, "Confidence": probs,"Time Interval ":time_stamps})
 
