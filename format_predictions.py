@@ -81,7 +81,7 @@ def visualize_prob(pred_dict):
 
 		#fig.show()
 
-		fig.write_image("plot_"+str(i)+".png")
+		fig.write_image("plot_"+str(i)+".png",  format="png", engine="kaleido")
 
 
 def get_bucket_contents(bucket_name):
