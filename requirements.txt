@@ -17,6 +17,6 @@ gluoncv
 pytz
 datetime
 schedule
-plotly
+plotly==5.1.0
 kaleido==0.1.0
 ibm-cos-sdk
