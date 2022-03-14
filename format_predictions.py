@@ -394,7 +394,7 @@ def display_pred():
 	st.markdown(class_pred, unsafe_allow_html=True)
 	#classes = lines
 	#classes = dict(tuple(classes))
-	visualize_prob(probs)
+	#visualize_prob(probs)
 	#table = pd.DataFrame({"Classes": classes.values(), "Confidence": classes.keys(),"Time Interval ":time_stamps})
 	table = pd.DataFrame({"Classes": preds, "Confidence": probs,"Time Interval ":time_stamps})
 
@@ -405,11 +405,12 @@ def display_pred():
 	#table = pd.concat([concat_df,new.loc[:]]).reset_index(drop=True)
 
 	st.markdown(get_table_download_link(table),unsafe_allow_html=True)
-
+	'''
 	for i in enumerate(preds):
 		new_title = '<p style="font-family:sans-serif; color:Green; font-size: 17px;">'+"Class Name: "+str(i[1])+'</p>'
 		st.markdown(new_title, unsafe_allow_html=True)
 		st.image("plot_"+str(i[0])+".png", width = 300)
+	'''
 
 	class_pred = '<p style="font-family:sans-serif; color:Green; font-size: 17px;">Target Details</p>'
 	st.markdown(class_pred, unsafe_allow_html=True)
