@@ -298,7 +298,7 @@ def run_the_app():
 	selected_model = st.selectbox("Assessment Type", options, format_func = lambda x: model_options[x])
 
 	# Show instructions
-	if str(selected_model) == "7":
+	if str(selected_model) == "5":
 		image_gaze = Image.open('child.png')
 		st.image(image_gaze, caption='Illustration for Joint Attention follow gaze')
 
