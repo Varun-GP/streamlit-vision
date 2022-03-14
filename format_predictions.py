@@ -79,7 +79,7 @@ def visualize_prob(pred_dict):
 			width=500,
 			height=500)
 
-		#fig.show()
+		fig.show()
 
 		#fig.write_image("plot_"+str(i)+".png",  format="png", engine="kaleido")
 		st.plotly_chart(fig)
