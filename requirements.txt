@@ -18,5 +18,5 @@ pytz
 datetime
 schedule
 plotly
-kaleido
+kaleido==0.1.0
 ibm-cos-sdk
