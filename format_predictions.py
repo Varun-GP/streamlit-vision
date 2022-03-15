@@ -142,7 +142,7 @@ def get_taget_table_download_link(table):
 
 def display_pred():
 	prediction_list = []
-	confidence_threshold = 70.0
+	confidence_threshold = 0.0
 	lines = open('prediction.txt','r').readlines()
 
 	if "squinting eyes" in lines[0]:
