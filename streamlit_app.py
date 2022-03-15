@@ -146,6 +146,7 @@ def dump_video(model_type):
 
 	ctx = get_report_ctx()
 	user_key = str(ctx.session_id)[-5:]
+	st.write("User key", user_key)
 	bucket_name = 'visionmodel'
 
 	# Put video on instance one as queue
